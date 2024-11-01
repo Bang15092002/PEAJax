@@ -1,0 +1,79 @@
+﻿@model IEnumerable<BussinessObject.Model.Student>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Id
+            </th>
+            <th>
+                name
+            </th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        ShowAllStudents();
+
+        $("table").on("click", "img.delete", function () {
+    var Id = $(this).parents("tr").find("td:nth-child(1)").text();
+
+    // Ask for confirmation before deletion
+    if (confirm("Are you sure you want to delete this student?")) {
+        $.ajax({
+            url: "https://localhost:7090/api/Students/" + Id,
+            type: "delete",
+            contentType: "application/json",
+            success: function (result, status, xhr) {
+                alert("Student deleted successfully."); // Success message
+                ShowAllStudents(); // Refresh the list
+            },
+            error: function (xhr, status, error) {
+                console.log(xhr);
+                alert("Failed to delete student. Please try again."); // Error message
+            }
+        });
+    }
+});
+
+
+
+        function ShowAllStudents() {
+            $("table tbody").html("");
+            $.ajax({
+                url: "https://localhost:7090/api/Students", // URL to fetch data from
+                type: "get",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (result, status, xhr) {
+                    $.each(result, function (index, value) {
+                        $("tbody").append($("<tr>"));
+                        var appendElement = $("tbody tr").last();
+                        appendElement.append($("<td>").html(value["id"]));
+                        appendElement.append($("<td>").html(value["name"]));
+                        appendElement.append($("<td>").html("<a href=\"https://localhost:7242/students/edit?id=" + value["id"] + "\"><img src=\"icon/edit.png\" /></a>"));
+                        appendElement.append($("<td>").html("<img class=\"delete\" src=\"icon/close.png\" />"));
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.log(xhr);
+                }
+            });
+        }
+    });
+</script>

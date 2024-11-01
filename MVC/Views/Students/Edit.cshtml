@@ -1,0 +1,91 @@
+﻿@model BussinessObject.Model.Student
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Student</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <!-- Removed asp-action attribute to handle submission via AJAX -->
+        <form id="editStudentForm">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" id="studentId" />
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" id="studentName" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="button" value="Save" class="btn btn-primary" id="saveStudentButton" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // Retrieve the student ID from the URL query parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const studentId = urlParams.get("id");
+
+            // Load student data if ID is present
+            if (studentId) {
+                $.ajax({
+                    url: "https://localhost:7090/api/Students/" + studentId, // API endpoint to get student data by ID
+                    type: "GET",
+                    contentType: "application/json",
+                    success: function (result) {
+                        // Populate the form fields with the retrieved data
+                        $("#studentId").val(result.id);
+                        $("#studentName").val(result.name);
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(xhr);
+                        alert("Failed to load student data.");
+                    }
+                });
+            }
+
+            // Handle form submission with AJAX
+            $("#saveStudentButton").click(function () {
+                var id = $("#studentId").val();
+                var name = $("#studentName").val();
+
+                if (name.trim() === "") {
+                    alert("Name cannot be empty.");
+                    return;
+                }
+
+                // Send AJAX request to update the student data
+                $.ajax({
+                    url: "https://localhost:7090/api/Students/" + id,
+                    type: "PUT",
+                    contentType: "application/json",
+                    data: JSON.stringify({ id: id, name: name }), // Sending updated student data
+                    success: function (result) {
+                        alert("Student data updated successfully.");
+                        window.location.href = '/Students/Index'; // Redirect to index after update
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(xhr);
+                        alert("Failed to update student data.");
+                    }
+                });
+            });
+        });
+    </script>
+}

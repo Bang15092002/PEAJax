@@ -1,0 +1,68 @@
+﻿@model BussinessObject.Model.Student
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Student</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <!-- Add an ID to the form to target it with jQuery -->
+        <form id="createStudentForm">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" id="studentName" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="button" value="Create" class="btn btn-primary" id="createStudentButton" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#createStudentButton").click(function () {
+                // Get the name from the input field
+                var studentName = $("#studentName").val();
+
+                // Validate that the name field is not empty
+                if (studentName.trim() === "") {
+                    alert("Name is required.");
+                    return;
+                }
+
+                // Send an AJAX POST request to create the student
+                $.ajax({
+                    url: "https://localhost:7090/api/Students", // Adjust URL to your controller's Create action
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({ name: studentName }), // Send data as JSON
+                    success: function (result) {
+                        // On success, redirect to the index page or show a success message
+                        window.location.href = '/Students/Index';
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(xhr);
+                        alert("Failed to create student. Please try again.");
+                    }
+                });
+            });
+        });
+    </script>
+}
